@@ -86,17 +86,13 @@ def pausesong(event):
     pygame.mixer.music.load(listofsongs[index])
     if paused:
         pygame.mixer.music.unpause()
+        pausebutton.configure(image = pause_button)
         statusbar['text'] = "Playing: "+ listofsongs[index]
-        os.chdir('/home/samip/Code/music_player')
-        pause_button = PhotoImage(file="pause-button.png")
-        os.chdir(directory)
         paused = False
     else:
         pygame.mixer.music.pause()
+        pausebutton.configure(image = play_button)
         statusbar['text'] = "Paused: "+ listofsongs[index]
-        os.chdir('/home/samip/Code/music_player')
-        pause_button = PhotoImage(file="play-button.png")
-        os.chdir(directory)
         paused = True
 
 def nextsong(event):
@@ -128,12 +124,14 @@ def mute_music(event):
         mutebutton.configure(image = unmute_button)
         pygame.mixer.music.set_volume(initial_volume)
         volume_scale.set(initial_volume * 100)
+        statusbar['text'] = "Playing: "+ listofsongs[index]
         muted = False
     else:#Music is not muted
         initial_volume = volume
         mutebutton.configure(image = mute_button)
         pygame.mixer.music.set_volume(0)
         volume_scale.set(0)
+        statusbar['text'] = "Muted "
         muted = True
 
 
@@ -167,23 +165,23 @@ statusbar.pack(side = BOTTOM, fill = X)
 control_frame = Frame(root)
 control_frame.pack(side = BOTTOM, fill = X)
 
-previous_button=PhotoImage(file="previous-button.png")
+previous_button=PhotoImage(file="images/previous-button.png")
 previousbutton = Button(control_frame,image = previous_button, anchor = W)
 previousbutton.pack(side = LEFT)
 
-play_button=PhotoImage(file="play-button.png")
+play_button=PhotoImage(file="images/play-button.png")
 playbutton = Button(control_frame,image = play_button)
 playbutton.pack(side = LEFT)
 
-pause_button = PhotoImage(file="pause-button.png")
+pause_button = PhotoImage(file="images/pause-button.png")
 pausebutton = Button(control_frame, image = pause_button)
 pausebutton.pack(side = LEFT)
   
-stop_button = PhotoImage(file="stop-button.png")
+stop_button = PhotoImage(file="images/stop-button.png")
 stopbutton = Button(control_frame,image = stop_button)
 stopbutton.pack(side = LEFT)
 
-next_button = PhotoImage(file="next-button.png")
+next_button = PhotoImage(file="images/next-button.png")
 nextbutton = Button(control_frame,image = next_button)
 nextbutton.pack(side = LEFT)
 
@@ -192,8 +190,8 @@ volume_scale.set(80)
 pygame.mixer.music.set_volume(0.8)
 volume_scale.pack(side = RIGHT)
 
-mute_button = PhotoImage(file="mute-button.png")
-unmute_button = PhotoImage(file="unmute-button.png")
+mute_button = PhotoImage(file="images/mute-button.png")
+unmute_button = PhotoImage(file="images/unmute-button.png")
 mutebutton = Button(control_frame,image = unmute_button)
 mutebutton.pack(side = RIGHT, padx = 3, anchor = S)
 
