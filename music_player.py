@@ -1,5 +1,9 @@
 import os
+import time
 from tkinter.filedialog import askdirectory
+
+from mutagen.mp3 import MP3
+import threading 
 
 import pygame
 from tkinter import *
@@ -48,8 +52,35 @@ def updatelabel():
     global songname
     root.title("Music Player: "+ listofsongs[index])
     v.set(listofsongs[index])
+
+def update_details():
+    audio = MP3(listofsongs[index])
+    total_length = audio.info.length
+    mins = int(total_length / 60)
+    sec = round(total_length % 60)
+    thread_1 = threading.Thread(target = start_count, args = (total_length,))
+    thread_1.start()
+    
+
+def start_count(total_length):
+    global paused
+    current_time = 0
+    total_min = int(total_length / 60)
+    total_sec = round(total_length % 60)
+    total_time = (total_min * 60) + total_sec
+    while current_time < total_time and pygame.mixer.music.get_busy():
+        if paused:
+            continue
+        else:
+            time.sleep(1)
+            current_time = current_time + 1
+            current_mins = int(current_time / 60)
+            current_sec = round(current_time % 60)
+            time_detail["text"] = "{:02d} : {:02d} / {:02d} : {:02d}".format(current_mins, current_sec, total_min, total_sec)
+
     
 def prevsong(event):
+    global paused
     try:
         global index
         if index == 0:
@@ -59,7 +90,9 @@ def prevsong(event):
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
         statusbar['text'] = "Playing: "+ listofsongs[index]
+        paused = False
         updatelabel()
+        update_details()
         update_display()
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
@@ -75,9 +108,11 @@ def playsong(event):
         paused = False
         muted = False
         updatelabel()
+        update_details()
         update_display()
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
+    
 
 
 def pausesong(event):
@@ -96,13 +131,16 @@ def pausesong(event):
         paused = True
 
 def nextsong(event):
+    global paus
     try:
         global index
         index = (index + 1) % count
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
         statusbar['text'] = "Playing: "+ listofsongs[index]
+        paused = False
         updatelabel()
+        update_details()
         update_display()
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
@@ -205,12 +243,17 @@ nextbutton.bind("<Button-1>",nextsong)
 mutebutton.bind("<Button-1>",mute_music)
 
 #LABEL
-label_frame = Frame(root)
-label_frame.pack(side = BOTTOM, fill = X)
+detail_frame = Frame(root)
+detail_frame.pack(side = BOTTOM, fill = X)
+
+time_detail = Label(detail_frame, text = '--:-- / --:--')
+time_detail.pack(anchor = W)
 
 v = StringVar()
-songlabel = Label(label_frame,textvariable=v, height = 2)
+songlabel = Label(detail_frame,textvariable=v, height = 2)
 songlabel.pack(side = LEFT)
+
+
 
 #LIST
 list_frame = Frame(root)
@@ -228,11 +271,14 @@ displaybox = Listbox(media_frame)
 displaybox.pack( expand = YES, fill = BOTH)
 
 
+def close_program():
+    stopsong("<Button-1>")
+    root.destroy()
 
 
 
 
 
 
-
+root.protocol("WM_DELETE_WINDOW", close_program)
 root.mainloop()
