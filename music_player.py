@@ -8,6 +8,8 @@ import tkinter.messagebox
 listofsongs = []
 index = 0
 count = 0
+volume = 0.8
+muted = False
 
 root = Tk()
 root.minsize(300,250)
@@ -19,6 +21,7 @@ def about_us():
 
 def directorychooser():
     global count
+    global directory
     count = 0
     directory = askdirectory()
     os.chdir(directory)
@@ -52,9 +55,7 @@ def prevsong(event):
         if index == 0:
             index = (count - 1)
         else:
-            indexu -= 1
-        print(index)
-        print(count)
+            index -= 1
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
         statusbar['text'] = "Playing: "+ listofsongs[index]
@@ -66,11 +67,13 @@ def prevsong(event):
 def playsong(event):
     global index
     global paused
+    global muted
     try:
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
         statusbar['text'] = "Playing: "+ listofsongs[index]
         paused = False
+        muted = False
         updatelabel()
         update_display()
     except:
@@ -80,20 +83,21 @@ def playsong(event):
 def pausesong(event):
     global index
     global paused
-    try:
-        pygame.mixer.music.load(listofsongs[index])
-        if paused:
-            pygame.mixer.music.unpause()
-            statusbar['text'] = "Playing: "+ listofsongs[index]
-            paused = False
-        else:
-            pygame.mixer.music.pause()
-            statusbar['text'] = "Paused: "+ listofsongs[index]
-            paused = True
-    except:
-        tkinter.messagebox.showerror('Error', 'Select a directory')
-
-
+    pygame.mixer.music.load(listofsongs[index])
+    if paused:
+        pygame.mixer.music.unpause()
+        statusbar['text'] = "Playing: "+ listofsongs[index]
+        os.chdir('/home/samip/Code/music_player')
+        pause_button = PhotoImage(file="pause-button.png")
+        os.chdir(directory)
+        paused = False
+    else:
+        pygame.mixer.music.pause()
+        statusbar['text'] = "Paused: "+ listofsongs[index]
+        os.chdir('/home/samip/Code/music_player')
+        pause_button = PhotoImage(file="play-button.png")
+        os.chdir(directory)
+        paused = True
 
 def nextsong(event):
     try:
@@ -107,15 +111,31 @@ def nextsong(event):
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
 
-
 def stopsong(event):
     pygame.mixer.music.stop()
     statusbar['text'] = "Stoped playing: "+ listofsongs[index]
     v.set("")
 
 def set_vol(val):
+    global volume
     volume = int(val) / 100
     pygame.mixer.music.set_volume(volume)
+
+def mute_music(event):
+    global muted
+    global initial_volume
+    if muted:#Music is muted
+        mutebutton.configure(image = unmute_button)
+        pygame.mixer.music.set_volume(initial_volume)
+        volume_scale.set(initial_volume * 100)
+        muted = False
+    else:#Music is not muted
+        initial_volume = volume
+        mutebutton.configure(image = mute_button)
+        pygame.mixer.music.set_volume(0)
+        volume_scale.set(0)
+        muted = True
+
 
 
 
@@ -172,11 +192,19 @@ volume_scale.set(80)
 pygame.mixer.music.set_volume(0.8)
 volume_scale.pack(side = RIGHT)
 
+mute_button = PhotoImage(file="mute-button.png")
+unmute_button = PhotoImage(file="unmute-button.png")
+mutebutton = Button(control_frame,image = unmute_button)
+mutebutton.pack(side = RIGHT, padx = 3, anchor = S)
+
+
+
 previousbutton.bind("<Button-1>",prevsong)
 playbutton.bind("<Button-1>",playsong)
 pausebutton.bind("<Button-1>",pausesong)
 stopbutton.bind("<Button-1>",stopsong)
 nextbutton.bind("<Button-1>",nextsong)
+mutebutton.bind("<Button-1>",mute_music)
 
 #LABEL
 label_frame = Frame(root)
