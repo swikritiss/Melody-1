@@ -46,6 +46,7 @@ def update_list():
 
 def update_display():
     global index
+    displaybox.delete(0, END) 
     displaybox.insert(0, listofsongs[index])
 
 def updatelabel():
@@ -58,9 +59,7 @@ def update_details():
     total_length = audio.info.length
     mins = int(total_length / 60)
     sec = round(total_length % 60)
-    print(threading.active_count())
-    thread_1 = threading.Thread(target = start_count, args = (total_length,))
-    thread_1.daemon = True
+    thread_1 = threading.Thread(target = start_count, args = (total_length,))   
     thread_1.start()
 
 def start_count(total_length):
@@ -71,7 +70,6 @@ def start_count(total_length):
     total_time = (total_min * 60) + total_sec
     visual_detail["to"] = total_time
     pointer = index
-    print('pointer', pointer)
     while current_time < total_time and pygame.mixer.music.get_busy():
         if pointer != index:
             return
@@ -84,7 +82,8 @@ def start_count(total_length):
             current_sec = round(current_time % 60)
             time_detail["text"] = "{:02d} : {:02d} / {:02d} : {:02d}".format(current_mins, current_sec, total_min, total_sec)
             visual_detail.set(current_time)
-    nextsong("<Button-1>")
+    if current_time == total_time:
+        nextsong("<Button-1>")
 
 def prevsong(event):
     global paused
@@ -111,6 +110,7 @@ def playsong(event):
         selected_song = listbox.curselection()
         if selected_song:
             index = int(selected_song[0])
+            listbox.selection_clear(0, END)
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
         statusbar['text'] = "Playing: "+ listofsongs[index]
