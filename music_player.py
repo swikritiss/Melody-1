@@ -98,7 +98,7 @@ def prevsong(event):
         statusbar['text'] = "Playing: " + listofsongs[index]
         paused = False
         update_details()
-        update_display()    
+        update_display()
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
 
@@ -113,7 +113,7 @@ def playsong(event):
             listbox.selection_clear(0, END)
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
-        statusbar['text'] = "Playing: "+ listofsongs[index]
+        statusbar['text'] = "Playing: "+ listofsongs[index] 
         paused = False
         muted = False
         update_details()
@@ -124,7 +124,6 @@ def playsong(event):
 def pausesong(event):
     global index
     global paused
-    pygame.mixer.music.load(listofsongs[index])
     if paused:
         pygame.mixer.music.unpause()
         pausebutton.configure(image = pause_button)
