@@ -2,12 +2,14 @@ import os
 import time
 from tkinter.filedialog import askdirectory
 
+from eq import equalizer_window
 from mutagen.mp3 import MP3
 import threading 
 
 import pygame
 from tkinter import *
 import tkinter.messagebox
+import json
 
 listofsongs = []
 index = 0
@@ -38,6 +40,11 @@ def directorychooser():
     update_list()
     pygame.mixer.music.load(listofsongs[0])
 
+
+def donothing():
+    print("Nothing is to be done")
+
+    
 def update_list():
     listofsongs.reverse()
     for items in listofsongs:
@@ -190,6 +197,10 @@ drop_menu.add_cascade(label = "File", menu = file_menu)
 file_menu.add_command(label = "Open", command = directorychooser)
 file_menu.add_separator()
 file_menu.add_command(label = "Exit", command = root.quit)
+
+options_menu = Menu(drop_menu, tearoff = 0)
+drop_menu.add_cascade(label = "Options", menu = options_menu)
+options_menu.add_command(label = "Equalizer", command = equalizer_window)
 
 help_menu = Menu(drop_menu, tearoff = 0)
 drop_menu.add_cascade(label = "Help", menu = help_menu)

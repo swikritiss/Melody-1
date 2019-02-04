@@ -1,0 +1,1 @@
+[{"Name": "Default"}, {"Name": "Rock"}, {"Name": "Rap"}, {"Name": "Grunge"}, {"Name": "Metal"}, {"Name": "Dance"}, {"Name": "Techno"}, {"Name": "Country"}, {"Name": "Acoustic"}, {"Name": "New Age"}, {"Name": "Jazz"}, {"Name": "Reggae"}, {"Name": "Opera"}, {"Name": "Swing"}, {"Name": "Music 56K"}, {"Name": "Music 28K"}, {"Name": "Folk"}, {"Name": "Pop"}]
