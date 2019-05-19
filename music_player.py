@@ -17,9 +17,13 @@ count = 0
 volume = 0.8
 muted = False
 song_changed = False
+shuffled = False
+repeat = False
+pause = False
 
 root = Tk()
-root.minsize(300,250)
+root.minsize(800,500)
+root.iconbitmap(r'logo.ico')
 
 pygame.mixer.init()
 
@@ -34,7 +38,7 @@ def directorychooser():
     os.chdir(directory)
  
     for files in os.listdir(directory):
-        if files.endswith(".wav"):
+        if files.endswith(".mp3"):
             listofsongs.append(files)
             count += 1
     update_list()
@@ -90,22 +94,44 @@ def start_count(total_length):
             time_detail["text"] = "{:02d} : {:02d} / {:02d} : {:02d}".format(current_mins, current_sec, total_min, total_sec)
             visual_detail.set(current_time)
     if current_time == total_time:
-        nextsong("<Button-1>")
+        if not (repeat):
+            nextsong("<Button-1>")
+        else:
+            stopsong("<Button-1>")
+            playsong("<Button-2>")
 
 def prevsong(event):
     global paused
+    global shuffled
+    global repeated
+    global index
     try:
-        global index
-        if index == 0:
-            index = (count - 1)
+        if shuffled:
+
+            if index == 0:
+                index = (count - 7)
+            else:
+                index = (index - 7) % count
+            pygame.mixer.music.load(listofsongs[index])
+            pygame.mixer.music.play()
+            statusbar['text'] = "Playing: " + listofsongs[index]
+            paused = False
+            update_details()
+            update_display()
+
         else:
-            index -= 1
-        pygame.mixer.music.load(listofsongs[index])
-        pygame.mixer.music.play()
-        statusbar['text'] = "Playing: " + listofsongs[index]
-        paused = False
-        update_details()
-        update_display()
+            if index == 0:
+                index = (count - 1)
+            else:
+                index = index - 1
+            pygame.mixer.music.load(listofsongs[index])
+            pygame.mixer.music.play()
+            statusbar['text'] = "Playing: " + listofsongs[index]
+            paused = False
+            update_details()
+            update_display()
+
+
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
 
@@ -114,13 +140,14 @@ def playsong(event):
     global paused
     global muted
     try:
+
         selected_song = listbox.curselection()
         if selected_song:
             index = int(selected_song[0])
             listbox.selection_clear(0, END)
         pygame.mixer.music.load(listofsongs[index])
         pygame.mixer.music.play()
-        statusbar['text'] = "Playing: "+ listofsongs[index] 
+        statusbar['text'] = "Playing: " + listofsongs[index]
         paused = False
         muted = False
         update_details()
@@ -133,25 +160,38 @@ def pausesong(event):
     global paused
     if paused:
         pygame.mixer.music.unpause()
-        pausebutton.configure(image = pause_button)
-        statusbar['text'] = "Playing: "+ listofsongs[index]
+        pausebutton.configure(image=pause_button)
+        statusbar['text'] = "Playing: " + listofsongs[index]
         paused = False
     else:
         pygame.mixer.music.pause()
-        pausebutton.configure(image = play_button)
-        statusbar['text'] = "Paused: "+ listofsongs[index]
+        pausebutton.configure(image=play_button)
+        statusbar['text'] = "Paused: " + listofsongs[index]
         paused = True
 
 def nextsong(event):
-    global pause
+    # global paused
+
+    global index
+    global shuffled
+
+
+
     try:
-        global index
-        index = (index + 1) % count
-        pygame.mixer.music.load(listofsongs[index])
-        pygame.mixer.music.play()
-        statusbar['text'] = "Playing: "+ listofsongs[index]
-        update_details()
-        update_display()
+        if shuffled:
+            index = (index + 7) % count
+            pygame.mixer.music.load(listofsongs[index])
+            pygame.mixer.music.play()
+            statusbar['text'] = "Playing: " + listofsongs[index]
+            update_details()
+            update_display()
+        else:
+            index = (index + 1) % count
+            pygame.mixer.music.load(listofsongs[index])
+            pygame.mixer.music.play()
+            statusbar['text'] = "Playing: " + listofsongs[index]
+            update_details()
+            update_display()
     except:
         tkinter.messagebox.showerror('Error', 'Select a directory')
 
@@ -168,21 +208,47 @@ def set_vol(val):
 def mute_music(event):
     global muted
     global initial_volume
-    if muted:#Music is muted
-        mutebutton.configure(image = unmute_button)
+    if muted:  # Music is muted
+        mutebutton.configure(image=unmute_button)
         pygame.mixer.music.set_volume(initial_volume)
         volume_scale.set(initial_volume * 100)
-        statusbar['text'] = "Playing: "+ listofsongs[index]
+        statusbar['text'] = "Playing: " + listofsongs[index]
         muted = False
-    else:#Music is not muted
+    else:  # Music is not muted
         initial_volume = volume
-        mutebutton.configure(image = mute_button)
+        mutebutton.configure(image=mute_button)
         pygame.mixer.music.set_volume(0)
         volume_scale.set(0)
         statusbar['text'] = "Muted "
-        muted = True
+        muted = Truee
 
+def shufflesong(event):
+    global index
+    global shuffled
+    if shuffled:
+        shuffled = False
+        noshufflebutton.configure(image=noshuffle_button)
+    else:
+        shuffled = True
+        noshufflebutton.configure(image=shuffle_button)
+def repeatsong(event):
+        #global index
+        #pygame.mixer.music.load(listofsongs[index])
+        #pygame.key.get_repeat()
+        #pygame.mixer.music.play(-1)
+        global repeat
+        if repeat:
+            repeat = False
+            repeatbutton.configure(image = repeat_button)
+        else:
+            repeat = True
+            repeatbutton.configure(image = repeat1_button)
 
+        #pygame.mixer.music.stop()
+        #pygame.mixer.music.play(-1, 0.0)
+        #statusbar['text'] = "On repeat: "+listofsongs[index]
+        #update_details()
+        #update_display()
 
 
 
@@ -237,6 +303,18 @@ next_button = PhotoImage(file="images/next-button.png")
 nextbutton = Button(control_frame,image = next_button)
 nextbutton.pack(side = LEFT)
 
+shuffle_button = PhotoImage(file="images/shuffle-button.png")
+noshuffle_button=PhotoImage(file="images/noshuffle-button.png")
+noshufflebutton = Button(control_frame, image=noshuffle_button)
+noshufflebutton.pack(side=LEFT, padx=10)
+
+repeat1_button = PhotoImage(file="images/repeat-button1.png")
+
+
+repeat_button = PhotoImage(file="images/repeat-button.png")
+repeatbutton = Button(control_frame, image=repeat_button)
+repeatbutton.pack(side=LEFT)
+
 volume_scale = Scale(control_frame, from_ = 0, to = 100, orient = HORIZONTAL, command =set_vol)
 volume_scale.set(80)
 pygame.mixer.music.set_volume(0.8)
@@ -255,8 +333,10 @@ pausebutton.bind("<Button-1>",pausesong)
 stopbutton.bind("<Button-1>",stopsong)
 nextbutton.bind("<Button-1>",nextsong)
 mutebutton.bind("<Button-1>",mute_music)
+noshufflebutton.bind("<Button-1>", shufflesong)
+repeatbutton.bind("<Button-1>", repeatsong)
 
-#LABEL
+#LABEL #DETAIL
 detail_frame = Frame(root)
 detail_frame.pack(side = BOTTOM, fill = X)
 
@@ -277,7 +357,7 @@ songlabel.pack(side = LEFT)'''
 #LIST
 list_frame = Frame(root)
 list_frame.pack(side = RIGHT, fill = Y)
-listbox = Listbox(list_frame, width = 30)
+listbox = Listbox(list_frame, width = 45)
 listbox.pack(fill = BOTH, expand = 1)
 
 
