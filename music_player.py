@@ -34,7 +34,7 @@ def directorychooser():
     os.chdir(directory)
  
     for files in os.listdir(directory):
-        if files.endswith(".mp3"):
+        if files.endswith(".wav"):
             listofsongs.append(files)
             count += 1
     update_list()
